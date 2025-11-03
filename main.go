@@ -78,7 +78,7 @@ func main() {
 	r.Handle("/metrics", handlers.MetricsHandler())
 
 	// Swagger UI
-	r.Get("/swagger/*", httpSwagger.Handler(httpSwagger.URL(fmt.Sprintf("http://localhost:%d/swagger/doc.json", cfg.Server.Port))))
+	r.Get("/swagger/*", httpSwagger.Handler(httpSwagger.URL(fmt.Sprintf("/swagger/doc.json"))))
 
 	r.Route("/users", func(r chi.Router) {
 		r.Use(middleware.BasicAuth)

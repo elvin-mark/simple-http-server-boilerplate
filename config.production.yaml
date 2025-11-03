@@ -2,7 +2,7 @@ server:
   port: 8080
 
 database:
-  host: db
+  host: host.docker.internal
   port: 5432
   user: postgres
   password: password
@@ -11,5 +11,5 @@ database:
 log_level: info
 
 redis:
-  host: redis
+  host: host.docker.internal
   port: 6379
