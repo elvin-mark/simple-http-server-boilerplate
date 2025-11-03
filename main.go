@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"http-server/config"
 	"http-server/handlers"
@@ -10,6 +11,8 @@ import (
 	"http-server/utils"
 	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/go-chi/chi/v5"
@@ -67,7 +70,7 @@ func main() {
 	r.Handle("/metrics", handlers.MetricsHandler())
 
 	// Swagger UI
-	r.Get("/swagger/*", httpSwagger.Handler(httpSwagger.URL("http://localhost:8080/swagger/doc.json")))
+	r.Get("/swagger/*", httpSwagger.Handler(httpSwagger.URL(fmt.Sprintf("http://localhost:%d/swagger/doc.json", cfg.Server.Port))))
 
 	r.Route("/users", func(r chi.Router) {
 		r.Use(middleware.BasicAuth)
@@ -79,11 +82,32 @@ func main() {
 
 	// Start server
 	serverAddr := fmt.Sprintf(":%d", cfg.Server.Port)
-	fmt.Printf("✅ Server running on http://localhost%s\n", serverAddr)
-	if err := http.ListenAndServe(serverAddr, r); err != nil {
-		utils.Logger.Error("Server failed to start", "error", err)
+	server := &http.Server{Addr: serverAddr, Handler: r}
+
+	// Listen for OS signals to perform a graceful shutdown
+	stop := make(chan os.Signal, 1)
+	signal.Notify(stop, os.Interrupt, syscall.SIGTERM)
+
+	go func() {
+		fmt.Printf("✅ Server running on http://localhost%s\n", serverAddr)
+		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			utils.Logger.Error("Server failed to start", "error", err)
+			os.Exit(1)
+		}
+	}()
+
+	<-stop // Wait for OS signal
+
+	utils.Logger.Info("Shutting down server...")
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	if err := server.Shutdown(ctx); err != nil {
+		utils.Logger.Error("Server graceful shutdown failed", "error", err)
 		os.Exit(1)
 	}
+
+	utils.Logger.Info("Server gracefully stopped")
 }
 
 // ============== HANDLERS ==============
