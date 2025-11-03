@@ -8,11 +8,11 @@ import (
 	"http-server/storage"
 	"http-server/utils"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	"go.uber.org/zap"
 )
 
 func main() {
@@ -23,16 +23,13 @@ func main() {
 	}
 
 	// Initialize logger
-	utils.Logger, err = zap.NewProduction()
-	if err != nil {
-		panic(err)
-	}
-	defer utils.Logger.Sync()
+	utils.InitLogger(cfg.LogLevel)
 
 	// Initialize database
 	db, err := storage.InitDB(&cfg.Database)
 	if err != nil {
-		utils.Logger.Fatal("Failed to initialize database", zap.Error(err))
+		utils.Logger.Error("Failed to initialize database", "error", err)
+		os.Exit(1)
 	}
 	defer db.Close()
 
@@ -45,7 +42,8 @@ func main() {
 	r := chi.NewRouter()
 
 	// ===== Middleware =====
-	r.Use(middleware.Logger)
+	r.Use(middleware.RequestID)
+	r.Use(utils.LoggerMiddleware)
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.AllowContentType("application/json", "text/plain"))
 	r.Use(middleware.Timeout(60 * time.Second))
@@ -61,13 +59,12 @@ func main() {
 		r.Delete("/{id}", userHandler.DeleteUserHandler)
 	})
 
-	utils.PrintStartupInfo()
-
 	// Start server
 	serverAddr := fmt.Sprintf(":%d", cfg.Server.Port)
 	fmt.Printf("✅ Server running on http://localhost%s\n", serverAddr)
 	if err := http.ListenAndServe(serverAddr, r); err != nil {
-		utils.Logger.Fatal("Server failed to start", zap.Error(err))
+		utils.Logger.Error("Server failed to start", "error", err)
+		os.Exit(1)
 	}
 }
 
@@ -80,7 +77,7 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 <head><title>Go-Chi HTTP Server</title></head>
 <body>
 <h1>🐹 Go-Chi Server</h1>
-<p>Built with Chi, Resty, Go-Cache, Zap</p>
+<p>Built with Chi, Resty, Go-Cache</p>
 <p><a href="/health">Health Check</a></p>
 </body>
 </html>`

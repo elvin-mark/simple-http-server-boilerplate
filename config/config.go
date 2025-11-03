@@ -10,6 +10,7 @@ import (
 type Config struct {
 	Server   ServerConfig
 	Database DatabaseConfig
+	LogLevel string `mapstructure:"log_level"`
 }
 
 type ServerConfig struct {

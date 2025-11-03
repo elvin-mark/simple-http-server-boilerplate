@@ -2,8 +2,10 @@ package utils
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
+	"time"
+
+	"github.com/go-chi/chi/v5/middleware"
 )
 
 func WriteJSON(w http.ResponseWriter, data interface{}) {
@@ -17,12 +19,21 @@ func WriteJSONStatus(w http.ResponseWriter, data interface{}, status int) {
 	json.NewEncoder(w).Encode(data)
 }
 
-func PrintStartupInfo() {
-	fmt.Println("\n📚 Endpoints:")
-	fmt.Println("  GET  /               - Home page")
-	fmt.Println("  GET  /health         - Health check")
-	fmt.Println("  GET  /users          - List users")
-	fmt.Println("  POST /users          - Create user")
-	fmt.Println("  GET  /users/{id}     - Get user")
-	fmt.Println("  DELETE /users/{id}   - Delete user")
+func LoggerMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		writer := middleware.NewWrapResponseWriter(w, r.ProtoMajor)
+		t0 := time.Now()
+
+		defer func() {
+			Logger.Info("Request",
+				"method", r.Method,
+				"path", r.URL.Path,
+				"status", writer.Status(),
+				"latency", time.Since(t0),
+				"request_id", middleware.GetReqID(r.Context()),
+			)
+		}()
+
+		next.ServeHTTP(writer, r)
+	})
 }

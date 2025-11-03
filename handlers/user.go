@@ -2,83 +2,82 @@ package handlers
 
 import (
 	"encoding/json"
-	user "http-server/dto/user"
+	"http-server/dto/user"
 	"http-server/services"
 	"http-server/utils"
 	"net/http"
 	"strconv"
 
 	"github.com/go-chi/chi/v5"
-	"go.uber.org/zap"
 )
 
-// UserHandler holds the user service.
+// ============== STRUCTS ==============
+
 type UserHandler struct {
-	Service *services.UserService
+	service *services.UserService
 }
 
-// NewUserHandler creates a new UserHandler.
 func NewUserHandler(service *services.UserService) *UserHandler {
-	return &UserHandler{Service: service}
+	return &UserHandler{service: service}
 }
+
+// ============== METHODS ==============
 
 func (h *UserHandler) GetUsersHandler(w http.ResponseWriter, r *http.Request) {
-	users, err := h.Service.GetUsers()
+	users, err := h.service.GetUsers()
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		utils.WriteJSONStatus(w, map[string]string{"error": "Failed to get users"}, http.StatusInternalServerError)
 		return
 	}
+
 	utils.WriteJSON(w, users)
 }
 
 func (h *UserHandler) GetUserHandler(w http.ResponseWriter, r *http.Request) {
-	idStr := chi.URLParam(r, "id")
-	id, err := strconv.Atoi(idStr)
+	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 	if err != nil {
-		http.Error(w, "Invalid user ID", http.StatusBadRequest)
+		utils.WriteJSONStatus(w, map[string]string{"error": "Invalid user ID"}, http.StatusBadRequest)
 		return
 	}
 
-	user, err := h.Service.GetUser(id)
+	user, err := h.service.GetUser(id)
 	if err != nil {
-		http.Error(w, "User not found", http.StatusNotFound)
+		utils.WriteJSONStatus(w, map[string]string{"error": "User not found"}, http.StatusNotFound)
 		return
 	}
+
 	utils.WriteJSON(w, user)
 }
 
 func (h *UserHandler) CreateUserHandler(w http.ResponseWriter, r *http.Request) {
 	var req user.CreateUserRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		utils.WriteJSONStatus(w, map[string]string{"error": "Invalid request body"}, http.StatusBadRequest)
 		return
 	}
 
-	// You can add validation here before calling the service
-
-	createdUser, err := h.Service.CreateUser(&req)
+	createdUser, err := h.service.CreateUser(&req)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		utils.WriteJSONStatus(w, map[string]string{"error": "Failed to create user"}, http.StatusInternalServerError)
 		return
 	}
 
-	utils.Logger.Info("User created", zap.Int("id", createdUser.ID))
+	utils.Logger.Info("User created", "id", createdUser.ID)
 	utils.WriteJSONStatus(w, createdUser, http.StatusCreated)
 }
 
 func (h *UserHandler) DeleteUserHandler(w http.ResponseWriter, r *http.Request) {
-	idStr := chi.URLParam(r, "id")
-	id, err := strconv.Atoi(idStr)
+	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 	if err != nil {
-		http.Error(w, "Invalid user ID", http.StatusBadRequest)
+		utils.WriteJSONStatus(w, map[string]string{"error": "Invalid user ID"}, http.StatusBadRequest)
 		return
 	}
 
-	if err := h.Service.DeleteUser(id); err != nil {
-		http.Error(w, err.Error(), http.StatusNotFound)
+	if err := h.service.DeleteUser(id); err != nil {
+		utils.WriteJSONStatus(w, map[string]string{"error": "Failed to delete user"}, http.StatusInternalServerError)
 		return
 	}
 
-	utils.Logger.Info("User deleted", zap.Int("id", id))
+	utils.Logger.Info("User deleted", "id", id)
 	w.WriteHeader(http.StatusNoContent)
 }
