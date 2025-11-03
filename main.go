@@ -45,6 +45,7 @@ func main() {
 	// ===== Middleware =====
 	r.Use(chiMiddleware.RequestID)
 	r.Use(middleware.LoggerMiddleware)
+	r.Use(middleware.MetricsMiddleware)
 	r.Use(chiMiddleware.Recoverer)
 	r.Use(middleware.CorsMiddleware())
 	r.Use(middleware.RateLimiterMiddleware())
