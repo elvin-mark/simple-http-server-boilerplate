@@ -46,9 +46,17 @@ func main() {
 	}
 	defer db.Close()
 
+	// Initialize Redis client
+	redisClient, err := storage.NewRedisClient(&cfg.Redis)
+	if err != nil {
+		utils.Logger.Error("Failed to initialize Redis client", "error", err)
+		os.Exit(1)
+	}
+	defer redisClient.Client.Close()
+
 	// Create user repository, service, and handler
 	userRepo := storage.NewUserRepository(db)
-	userService := services.NewUserService(userRepo)
+	userService := services.NewUserService(userRepo, redisClient)
 	userHandler := handlers.NewUserHandler(userService)
 
 	// Create router

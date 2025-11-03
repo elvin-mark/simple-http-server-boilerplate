@@ -11,6 +11,7 @@ import (
 type Config struct {
 	Server   ServerConfig
 	Database DatabaseConfig
+	Redis    RedisConfig
 	LogLevel string `mapstructure:"log_level"`
 }
 
@@ -24,6 +25,11 @@ type DatabaseConfig struct {
 	User     string
 	Password string
 	DBName   string `mapstructure:"db_name"`
+}
+
+type RedisConfig struct {
+	Host string
+	Port int
 }
 
 func LoadConfig() (*Config, error) {

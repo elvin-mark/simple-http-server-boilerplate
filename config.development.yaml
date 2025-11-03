@@ -9,3 +9,7 @@ database:
   db_name: demo
 
 log_level: debug
+
+redis:
+  host: localhost
+  port: 6379

@@ -17,6 +17,8 @@ services:
       - DB_PASSWORD=postgres
       - DB_NAME=demo
       - LOG_LEVEL=debug
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
 
   db:
     image: postgres:13
@@ -28,6 +30,11 @@ services:
       - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data/
+
+  redis:
+    image: redis:6-alpine
+    ports:
+      - "6379:6379"
 
 volumes:
   postgres_data:
