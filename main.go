@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"http-server/config"
 	"http-server/handlers"
+	"http-server/middleware"
 	"http-server/services"
 	"http-server/storage"
 	"http-server/utils"
@@ -12,7 +13,7 @@ import (
 	"time"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
+	chiMiddleware "github.com/go-chi/chi/v5/middleware"
 )
 
 func main() {
@@ -42,17 +43,18 @@ func main() {
 	r := chi.NewRouter()
 
 	// ===== Middleware =====
-	r.Use(middleware.RequestID)
-	r.Use(utils.LoggerMiddleware)
-	r.Use(middleware.Recoverer)
-	r.Use(middleware.AllowContentType("application/json", "text/plain"))
-	r.Use(middleware.Timeout(60 * time.Second))
+	r.Use(chiMiddleware.RequestID)
+	r.Use(middleware.LoggerMiddleware)
+	r.Use(chiMiddleware.Recoverer)
+	r.Use(chiMiddleware.AllowContentType("application/json", "text/plain"))
+	r.Use(chiMiddleware.Timeout(60 * time.Second))
 
 	// ===== Routes =====
 	r.Get("/", homeHandler)
 	r.Get("/health", handlers.HealthCheckHandler)
 
 	r.Route("/users", func(r chi.Router) {
+		r.Use(middleware.BasicAuth)
 		r.Get("/", userHandler.GetUsersHandler)
 		r.Post("/", userHandler.CreateUserHandler)
 		r.Get("/{id}", userHandler.GetUserHandler)
