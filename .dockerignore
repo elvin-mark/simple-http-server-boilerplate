@@ -1,0 +1,13 @@
+.dockerignore
+.env
+.git
+.vscode
+*.md
+
+# Ignore all files in the root directory except for the following:
+!main.go
+!go.mod
+!go.sum
+!config.yaml
+
+

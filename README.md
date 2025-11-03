@@ -29,6 +29,15 @@ A `Makefile` is provided to simplify the development process. The following comm
 * `make clean`: Clean the build artifacts.
 * `make help`: Display the help message.
 
+## Docker
+
+To build and run the application using Docker, use the following commands:
+
+```bash
+docker build -t simple-http-server .
+docker run -p 8080:8080 simple-http-server
+```
+
 ## Endpoints
 
 The following endpoints are available:
