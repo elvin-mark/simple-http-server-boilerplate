@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/spf13/viper"
@@ -22,11 +23,16 @@ type DatabaseConfig struct {
 	Port     int
 	User     string
 	Password string
-	DBName   string
+	DBName   string `mapstructure:"db_name"`
 }
 
 func LoadConfig() (*Config, error) {
-	viper.SetConfigName("config")
+	env := os.Getenv("APP_ENV")
+	if env == "" {
+		env = "development"
+	}
+
+	viper.SetConfigName(fmt.Sprintf("config.%s", env))
 	viper.SetConfigType("yaml")
 	viper.AddConfigPath(".")
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))

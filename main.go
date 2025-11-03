@@ -46,12 +46,15 @@ func main() {
 	r.Use(chiMiddleware.RequestID)
 	r.Use(middleware.LoggerMiddleware)
 	r.Use(chiMiddleware.Recoverer)
+	r.Use(middleware.CorsMiddleware())
+	r.Use(middleware.RateLimiterMiddleware())
 	r.Use(chiMiddleware.AllowContentType("application/json", "text/plain"))
 	r.Use(chiMiddleware.Timeout(60 * time.Second))
 
 	// ===== Routes =====
 	r.Get("/", homeHandler)
 	r.Get("/health", handlers.HealthCheckHandler)
+	r.Handle("/metrics", handlers.MetricsHandler())
 
 	r.Route("/users", func(r chi.Router) {
 		r.Use(middleware.BasicAuth)

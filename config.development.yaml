@@ -1,10 +1,11 @@
 server:
   port: 8080
-log_level: info
 
 database:
   host: localhost
   port: 5432
   user: postgres
-  password: 
-  dbname: demo
+  password: password
+  db_name: demo
+
+log_level: debug

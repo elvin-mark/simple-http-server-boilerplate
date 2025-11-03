@@ -1,0 +1,11 @@
+server:
+  port: 8080
+
+database:
+  host: db
+  port: 5432
+  user: postgres
+  password: password
+  db_name: demo
+
+log_level: info

@@ -16,7 +16,8 @@ FROM alpine:latest
 WORKDIR /app
 
 COPY --from=build /http-server /http-server
-COPY config.yaml .
+COPY config.production.yaml ./config.production.yaml
+COPY config.development.yaml ./config.development.yaml
 
 EXPOSE 8080
 
