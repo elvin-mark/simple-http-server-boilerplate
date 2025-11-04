@@ -8,6 +8,7 @@ build:
 	@echo "Building the application..."
 	@mkdir -p build
 	@go build -o build/$(BINARY_NAME) main.go
+	@go build -o build/migrate cmd/migrate/main.go
 
 run: build
 	@echo "Running the application..."
