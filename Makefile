@@ -1,6 +1,6 @@
 BINARY_NAME=http-server
 
-.PHONY: all build run test clean help
+.PHONY: all build run test clean help migrate
 
 all: build
 
@@ -21,6 +21,11 @@ clean:
 	@echo "Cleaning up..."
 	@rm -f build/$(BINARY_NAME)
 
+# Migrations
+migrate:
+	@echo "Running database migrations..."
+	@go run cmd/migrate/main.go
+
 help:
 	@echo "Usage: make [target]"
 	@echo ""
@@ -29,6 +34,7 @@ help:
 	@echo "  run      Run the application"
 	@echo "  test     Run the tests"
 	@echo "  clean    Clean the build artifacts"
+	@echo "  migrate  Run database migrations"
 	@echo "  help     Display this help message"
 
 .DEFAULT_GOAL := help
