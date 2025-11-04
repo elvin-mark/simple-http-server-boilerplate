@@ -12,6 +12,8 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"path/filepath"
+	"runtime"
 	"syscall"
 	"time"
 
@@ -72,8 +74,18 @@ func main() {
 	r.Use(chiMiddleware.AllowContentType("application/json", "text/plain"))
 	r.Use(chiMiddleware.Timeout(60 * time.Second))
 
+	// ===== Static files ====
+	_, b, _, _ := runtime.Caller(0)
+	basepath := filepath.Dir(b)
+	staticDir := http.Dir(filepath.Join(basepath, "resources/static"))
+	r.Handle("/ui/*", http.StripPrefix("/ui/", http.FileServer(staticDir)))
+
+	// ===== Redirects ====
+	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, "/ui/", http.StatusFound) // Use http.StatusFound for a temporary redirect (302)
+	})
+
 	// ===== Routes =====
-	r.Get("/", homeHandler)
 	r.Get("/health", handlers.HealthCheckHandler)
 	r.Handle("/metrics", handlers.MetricsHandler())
 
@@ -116,21 +128,4 @@ func main() {
 	}
 
 	utils.Logger.Info("Server gracefully stopped")
-}
-
-// ============== HANDLERS ==============
-
-func homeHandler(w http.ResponseWriter, r *http.Request) {
-	html := `
-<!DOCTYPE html>
-<html>
-<head><title>Go-Chi HTTP Server</title></head>
-<body>
-<h1>🐹 Go-Chi Server</h1>
-<p>Built with Chi, Resty, Go-Cache</p>
-<p><a href="/health">Health Check</a></p>
-</body>
-</html>`
-	w.Header().Set("Content-Type", "text/html")
-	w.Write([]byte(html))
 }

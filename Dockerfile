@@ -19,6 +19,7 @@ WORKDIR /app
 COPY --from=build /http-server /http-server
 COPY --from=build /migrate /migrate
 COPY --from=build /app/migrations/*.sql /migrations/
+COPY --from=build /app/resources ./resources
 COPY config.production.yaml ./config.production.yaml
 COPY config.development.yaml ./config.development.yaml
 
