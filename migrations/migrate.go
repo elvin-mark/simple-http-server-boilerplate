@@ -1,11 +1,10 @@
-
 package migrations
 
 import (
 	"database/sql"
 	"fmt"
-	"io/ioutil"
 	"log"
+	"os"
 	"path/filepath"
 	"sort"
 	"strconv"
@@ -96,7 +95,7 @@ func getVersionFromFile(file string) (int64, error) {
 }
 
 func applyMigration(db *sql.DB, file string, version int64) error {
-	content, err := ioutil.ReadFile(file)
+	content, err := os.ReadFile(file)
 	if err != nil {
 		return err
 	}
@@ -105,7 +104,12 @@ func applyMigration(db *sql.DB, file string, version int64) error {
 	if err != nil {
 		return err
 	}
-	defer tx.Rollback() // Rollback on error
+	defer func() {
+		// Rollback on error
+		if err != nil {
+			_ = tx.Rollback()
+		}
+	}()
 
 	if _, err := tx.Exec(string(content)); err != nil {
 		return err

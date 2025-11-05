@@ -136,6 +136,26 @@ A `Makefile` is provided to simplify common development tasks:
 - `make migrate`: Run database migrations.
 - `make help`: Display the help message.
 
+### Linting
+
+This project uses `golangci-lint` to enforce code quality and consistency. It's recommended to run the linter locally before committing changes.
+
+1.  **Install the Linter:**
+
+    ```bash
+    go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+    ```
+
+2.  **Run the Linter:**
+
+    From the project root, run:
+
+    ```bash
+    golangci-lint run
+    ```
+
+    It will automatically use the configuration from the `.golangci.yml` file.
+
 ## Contributing
 
 Feel free to fork this repository and contribute!
