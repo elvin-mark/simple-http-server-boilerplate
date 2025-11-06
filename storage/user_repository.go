@@ -7,18 +7,26 @@ import (
 	"github.com/jackc/pgx/v4/pgxpool"
 )
 
-// UserRepository is the PostgreSQL implementation of the UserRepository.
-type UserRepository struct {
+// UserRepository defines the interface for user data storage.
+type UserRepository interface {
+	GetUsers() ([]user.User, error)
+	GetUser(id int) (*user.User, error)
+	CreateUser(user *user.CreateUserRequest) (*user.User, error)
+	DeleteUser(id int) error
+}
+
+// userRepository is the PostgreSQL implementation of the UserRepository.
+type userRepository struct {
 	db *pgxpool.Pool
 }
 
 // UserRepository creates a new UserRepository.
-func NewUserRepository(db *pgxpool.Pool) *UserRepository {
-	return &UserRepository{db: db}
+func NewUserRepository(db *pgxpool.Pool) UserRepository {
+	return &userRepository{db: db}
 }
 
 // GetUsers retrieves all users from the database.
-func (r *UserRepository) GetUsers() ([]user.User, error) {
+func (r *userRepository) GetUsers() ([]user.User, error) {
 	rows, err := r.db.Query(context.Background(), "SELECT id, name, email FROM users")
 	if err != nil {
 		return nil, err
@@ -38,7 +46,7 @@ func (r *UserRepository) GetUsers() ([]user.User, error) {
 }
 
 // GetUser retrieves a single user by ID from the database.
-func (r *UserRepository) GetUser(id int) (*user.User, error) {
+func (r *userRepository) GetUser(id int) (*user.User, error) {
 	var u user.User
 	err := r.db.QueryRow(context.Background(), "SELECT id, name, email FROM users WHERE id = $1", id).Scan(&u.ID, &u.Name, &u.Email)
 	if err != nil {
@@ -48,7 +56,7 @@ func (r *UserRepository) GetUser(id int) (*user.User, error) {
 }
 
 // CreateUser inserts a new user into the database.
-func (r *UserRepository) CreateUser(req *user.CreateUserRequest) (*user.User, error) {
+func (r *userRepository) CreateUser(req *user.CreateUserRequest) (*user.User, error) {
 	var u user.User
 	err := r.db.QueryRow(context.Background(), "INSERT INTO users (name, email) VALUES ($1, $2) RETURNING id, name, email", req.Name, req.Email).Scan(&u.ID, &u.Name, &u.Email)
 	if err != nil {
@@ -58,7 +66,7 @@ func (r *UserRepository) CreateUser(req *user.CreateUserRequest) (*user.User, er
 }
 
 // DeleteUser deletes a user from the database.
-func (r *UserRepository) DeleteUser(id int) error {
+func (r *userRepository) DeleteUser(id int) error {
 	_, err := r.db.Exec(context.Background(), "DELETE FROM users WHERE id = $1", id)
 	return err
 }

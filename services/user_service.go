@@ -11,23 +11,14 @@ import (
 	"http-server/utils"
 )
 
-// UserRepository defines the interface for user data storage.
-// This will be implemented by the storage layer (e.g., in-memory or PostgreSQL).
-type UserRepository interface {
-	GetUsers() ([]user.User, error)
-	GetUser(id int) (*user.User, error)
-	CreateUser(user *user.CreateUserRequest) (*user.User, error)
-	DeleteUser(id int) error
-}
-
 // UserService provides user-related business logic.
 type UserService struct {
-	repo        UserRepository
+	repo        storage.UserRepository
 	redisClient *storage.RedisClient
 }
 
 // NewUserService creates a new UserService.
-func NewUserService(repo UserRepository, redisClient *storage.RedisClient) *UserService {
+func NewUserService(repo storage.UserRepository, redisClient *storage.RedisClient) *UserService {
 	return &UserService{repo: repo, redisClient: redisClient}
 }
 
