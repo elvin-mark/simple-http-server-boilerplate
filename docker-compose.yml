@@ -1,5 +1,9 @@
 version: '3.8'
 
+networks:
+  monitoring:
+    driver: bridge
+
 services:
   app:
     build:
@@ -19,6 +23,8 @@ services:
       - LOG_LEVEL=debug
       - REDIS_HOST=redis
       - REDIS_PORT=6379
+    networks:
+      - monitoring
 
   db:
     image: postgres:13
@@ -30,11 +36,40 @@ services:
       - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data/
+    networks:
+      - monitoring
 
   redis:
     image: redis:6-alpine
     ports:
       - "6379:6379"
+    networks:
+      - monitoring
+
+  prometheus:
+    image: prom/prometheus:v2.37.0
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command: --config.file=/etc/prometheus/prometheus.yml
+    networks:
+      - monitoring
+
+  grafana:
+    image: grafana/grafana:8.5.2
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
+      - grafana_data:/var/lib/grafana
+    depends_on:
+      - prometheus
+    networks:
+      - monitoring
 
 volumes:
   postgres_data:
+  prometheus_data:
+  grafana_data:

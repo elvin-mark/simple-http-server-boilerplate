@@ -54,6 +54,13 @@ docker compose up --build
 
 The application will be accessible at `http://localhost:8081` (or the port configured in `docker-compose.yml`).
 
+### Observability with Prometheus & Grafana
+
+The Docker Compose setup includes a full observability stack with Prometheus and Grafana. Once you run `docker compose up`, you can access:
+
+- **Prometheus:** Navigate to `http://localhost:9090`. You can use the UI to explore metrics and see that it's successfully scraping the Go application.
+- **Grafana:** Navigate to `http://localhost:3000`. A pre-configured "App Metrics" dashboard is available out of the box, visualizing key application metrics.
+
 ### Running Locally (without Docker Compose)
 
 1.  **Install Dependencies:**
