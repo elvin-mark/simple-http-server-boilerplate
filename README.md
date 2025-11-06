@@ -156,6 +156,24 @@ This project uses `golangci-lint` to enforce code quality and consistency. It's 
 
     It will automatically use the configuration from the `.golangci.yml` file.
 
+### Vulnerability Scanning
+
+This project uses `govulncheck`, an official Go tool, to scan for known vulnerabilities in your project's dependencies.
+
+1.  **Install govulncheck:**
+
+    ```bash
+    go install golang.org/x/vuln/cmd/govulncheck@latest
+    ```
+
+2.  **Run the Scanner:**
+
+    From the project root, run:
+
+    ```bash
+    govulncheck ./...
+    ```
+
 ## Contributing
 
 Feel free to fork this repository and contribute!
