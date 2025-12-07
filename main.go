@@ -25,11 +25,11 @@ import (
 	httpSwagger "github.com/swaggo/http-swagger"
 )
 
-// @title Simple HTTP Server API
-// @version 1.0
-// @description This is a sample server for a simple HTTP server.
-// @host localhost:8080
-// @BasePath /
+// @title			Simple HTTP Server API
+// @version		1.0
+// @description	This is a sample server for a simple HTTP server.
+// @host			localhost:8080
+// @BasePath		/
 func main() {
 	// Load configuration
 	cfg, err := config.LoadConfig()

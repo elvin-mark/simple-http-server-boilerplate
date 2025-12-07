@@ -24,14 +24,15 @@ func NewUserHandler(service *services.UserService) *UserHandler {
 // ============== METHODS ==============
 
 // GetUsersHandler godoc
-// @Summary Get all users
-// @Description Get a list of all users
-// @Tags users
-// @Accept json
-// @Produce json
-// @Success 200 {array} user.User
-// @Failure 500 {object} map[string]string
-// @Router /users [get]
+//
+//	@Summary		Get all users
+//	@Description	Get a list of all users
+//	@Tags			users
+//	@Accept			json
+//	@Produce		json
+//	@Success		200	{array}		user.User
+//	@Failure		500	{object}	map[string]string
+//	@Router			/users [get]
 func (h *UserHandler) GetUsersHandler(w http.ResponseWriter, r *http.Request) {
 	users, err := h.service.GetUsers()
 	if err != nil {
@@ -43,17 +44,18 @@ func (h *UserHandler) GetUsersHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 // GetUserHandler godoc
-// @Summary Get a user by ID
-// @Description Get a single user by their ID
-// @Tags users
-// @Accept json
-// @Produce json
-// @Param id path int true "User ID"
-// @Success 200 {object} user.User
-// @Failure 400 {object} map[string]string
-// @Failure 404 {object} map[string]string
-// @Failure 500 {object} map[string]string
-// @Router /users/{id} [get]
+//
+//	@Summary		Get a user by ID
+//	@Description	Get a single user by their ID
+//	@Tags			users
+//	@Accept			json
+//	@Produce		json
+//	@Param			id	path		int	true	"User ID"
+//	@Success		200	{object}	user.User
+//	@Failure		400	{object}	map[string]string
+//	@Failure		404	{object}	map[string]string
+//	@Failure		500	{object}	map[string]string
+//	@Router			/users/{id} [get]
 func (h *UserHandler) GetUserHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 	if err != nil {
@@ -71,16 +73,17 @@ func (h *UserHandler) GetUserHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 // CreateUserHandler godoc
-// @Summary Create a new user
-// @Description Create a new user with the provided details
-// @Tags users
-// @Accept json
-// @Produce json
-// @Param user body user.CreateUserRequest true "User object to be created"
-// @Success 201 {object} user.User
-// @Failure 400 {object} map[string]string
-// @Failure 500 {object} map[string]string
-// @Router /users [post]
+//
+//	@Summary		Create a new user
+//	@Description	Create a new user with the provided details
+//	@Tags			users
+//	@Accept			json
+//	@Produce		json
+//	@Param			user	body		user.CreateUserRequest	true	"User object to be created"
+//	@Success		201		{object}	user.User
+//	@Failure		400		{object}	map[string]string
+//	@Failure		500		{object}	map[string]string
+//	@Router			/users [post]
 func (h *UserHandler) CreateUserHandler(w http.ResponseWriter, r *http.Request) {
 	var req user.CreateUserRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -99,16 +102,17 @@ func (h *UserHandler) CreateUserHandler(w http.ResponseWriter, r *http.Request) 
 }
 
 // DeleteUserHandler godoc
-// @Summary Delete a user by ID
-// @Description Delete a single user by their ID
-// @Tags users
-// @Accept json
-// @Produce json
-// @Param id path int true "User ID"
-// @Success 204 "No Content"
-// @Failure 400 {object} map[string]string
-// @Failure 500 {object} map[string]string
-// @Router /users/{id} [delete]
+//
+//	@Summary		Delete a user by ID
+//	@Description	Delete a single user by their ID
+//	@Tags			users
+//	@Accept			json
+//	@Produce		json
+//	@Param			id	path	int	true	"User ID"
+//	@Success		204	"No Content"
+//	@Failure		400	{object}	map[string]string
+//	@Failure		500	{object}	map[string]string
+//	@Router			/users/{id} [delete]
 func (h *UserHandler) DeleteUserHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 	if err != nil {
