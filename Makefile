@@ -4,10 +4,17 @@ BINARY_NAME=http-server
 
 all: build
 
+check:
+	@go fmt ./...
+	@golangci-lint run -v ./...
+	@govulncheck ./...
+
 build:
+	@echo "Generating swagger docs"
+	@swag init --generalInfo cmd/api/main.go --output docs
 	@echo "Building the application..."
 	@mkdir -p build
-	@go build -o build/$(BINARY_NAME) main.go
+	@go build -o build/$(BINARY_NAME) cmd/api/main.go
 	@go build -o build/migrate cmd/migrate/main.go
 
 run: build
@@ -27,15 +34,25 @@ migrate:
 	@echo "Running database migrations..."
 	@go run cmd/migrate/main.go
 
+# Docker
+docker: build
+	@docker build -t tools/simple-http-server .
+
+run-docker:
+	@docker run -it --name simple-http-server -p 8080:8080 tools/simple-http-server
+
 help:
 	@echo "Usage: make [target]"
 	@echo ""
 	@echo "Targets:"
-	@echo "  build    Build the application"
-	@echo "  run      Run the application"
-	@echo "  test     Run the tests"
-	@echo "  clean    Clean the build artifacts"
-	@echo "  migrate  Run database migrations"
+	@echo "  check       Run checks for the code base"
+	@echo "  build       Build the application"
+	@echo "  run         Run the application"
+	@echo "  test        Run the tests"
+	@echo "  clean       Clean the build artifacts"
+	@echo "  migrate     Run database migrations"
+	@echo "  docker      Build docker image"
+	@echo "  run-docker  Run docker image" 
 	@echo "  help     Display this help message"
 
 .DEFAULT_GOAL := help

@@ -23,7 +23,6 @@ func TestMain(m *testing.M) {
 	os.Exit(m.Run())
 }
 
-
 // MockUserRepository is a mock implementation of the UserRepository interface.
 type MockUserRepository struct {
 	GetUsersFunc   func() ([]user.User, error)
